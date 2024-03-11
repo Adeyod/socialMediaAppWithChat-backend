@@ -26,7 +26,7 @@ app.use('/api/user', userRoutes);
 app.use('/api/post', postRoutes);
 
 app.get('/', (req, res) => {
-  res.send('Welcome to gist with friends backend application');
+  res.send('WELCOME TO GIST WITH FRIENDS BACKEND APPLICATION');
 });
 app.use(notFound);
 app.use(errorHandler);
