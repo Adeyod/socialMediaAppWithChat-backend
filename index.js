@@ -25,6 +25,9 @@ const port = process.env.PORT || 5500;
 app.use('/api/user', userRoutes);
 app.use('/api/post', postRoutes);
 
+app.get('/', (req, res) => {
+  res.send('Welcome to gist with friends backend application');
+});
 app.use(notFound);
 app.use(errorHandler);
 
