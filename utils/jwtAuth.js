@@ -29,7 +29,7 @@ const verifyToken = async (req, res, next) => {
 
     if (!token) {
       return res.json({
-        message: 'Please login to continue',
+        message: 'Please login to continue using our services',
         status: 400,
         success: false,
       });

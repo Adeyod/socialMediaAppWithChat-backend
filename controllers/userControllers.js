@@ -10,6 +10,8 @@ import {
   handleFileUpload,
 } from '../utils/cloudinary.js';
 import { error, profile } from 'console';
+import mongoose from 'mongoose';
+import Post from '../models/postModel.js';
 
 const forbiddenCharsRegex = /[|!{}()&=[\]===><>]/;
 
@@ -147,59 +149,6 @@ const registerUser = async (req, res) => {
 
     return res.json({
       message: 'Email verification link has been sent to your email address',
-      status: 200,
-      success: true,
-    });
-  } catch (error) {
-    return res.json({
-      message: 'Something happened',
-      status: 500,
-      success: false,
-      error: error.message,
-    });
-  }
-};
-
-const emailVerification = async (req, res) => {
-  try {
-    const { userId, token } = req.params;
-    const tokenExist = await Token.findOne({
-      token,
-      userId,
-    });
-
-    if (!tokenExist) {
-      return res.json({
-        message: 'Token does not exist',
-        success: false,
-        status: 404,
-      });
-    }
-
-    const userUpdate = await User.findOneAndUpdate(
-      {
-        _id: tokenExist.userId,
-      },
-      {
-        $set: {
-          isVerified: true,
-        },
-      },
-      { new: true }
-    );
-
-    if (!userUpdate) {
-      return res.json({
-        message: 'Unable to update user',
-        success: false,
-        status: 400,
-      });
-    }
-
-    await tokenExist.deleteOne();
-
-    return res.json({
-      message: 'User has been updated successfully. You can now login',
       status: 200,
       success: true,
     });
@@ -505,11 +454,62 @@ const forgotPassword = async (req, res) => {
   }
 };
 
+const emailVerification = async (req, res) => {
+  try {
+    const { userId, token } = req.params;
+    const tokenExist = await Token.findOne({
+      token,
+      userId,
+    });
+
+    if (!tokenExist) {
+      return res.json({
+        message: 'Token does not exist',
+        success: false,
+        status: 404,
+      });
+    }
+
+    const userUpdate = await User.findOneAndUpdate(
+      {
+        _id: tokenExist.userId,
+      },
+      {
+        $set: {
+          isVerified: true,
+        },
+      },
+      { new: true }
+    );
+
+    if (!userUpdate) {
+      return res.json({
+        message: 'Unable to update user',
+        success: false,
+        status: 400,
+      });
+    }
+
+    await tokenExist.deleteOne();
+
+    return res.json({
+      message: 'User has been updated successfully. You can now login',
+      status: 200,
+      success: true,
+    });
+  } catch (error) {
+    return res.json({
+      message: 'Something happened',
+      status: 500,
+      success: false,
+      error: error.message,
+    });
+  }
+};
+
 const allowResetPassword = async (req, res) => {
   try {
     const { userId, token } = req.params;
-
-    console.log(req.params);
 
     const userToken = await Token.findOne({
       token,
@@ -707,7 +707,7 @@ const updateUserProfile = async (req, res) => {
     if (username !== user.username) {
       // check if new username exist
       const usernameExist = await User.findOne({
-        username: { $regex: username, $options: 'i' },
+        username: { $regex: `^${username}$`, $options: 'i' },
       });
 
       if (usernameExist) {
@@ -737,7 +737,7 @@ const updateUserProfile = async (req, res) => {
       user.password = hashedPassword;
     }
 
-    if (profilePic) {
+    if (profilePic && profilePic !== undefined) {
       // check if profile pic is not empty string
       if (user.profilePic !== '') {
         // remove the profile pic and upload the new one
@@ -773,6 +773,18 @@ const updateUserProfile = async (req, res) => {
     user.bio = bio || user.bio;
 
     user = await user.save();
+
+    // Find all posts that user replied and update username and userProfilePic fields
+    await Post.updateMany(
+      { 'replies.userId': user._id },
+      {
+        $set: {
+          'replies.$[reply].username': user.username,
+          'replies.$[reply].userProfilePic': user.profilePic.url,
+        },
+      },
+      { arrayFilters: [{ 'reply.userId': user._id }] }
+    );
 
     if (!user) {
       return res.json({
@@ -835,7 +847,7 @@ const followUnFollowUser = async (req, res) => {
       currentUser.following.pull(userToModify._id);
       userToModify.followers.pull(currentUser._id);
       return res.json({
-        message: 'User unfollowed',
+        message: `${userToModify.username} unfollowed`,
         status: 200,
         success: true,
       });
@@ -851,7 +863,7 @@ const followUnFollowUser = async (req, res) => {
       );
 
       return res.json({
-        message: 'User followed',
+        message: `${userToModify.username} followed`,
         status: 200,
         success: true,
       });
@@ -870,10 +882,21 @@ const followUnFollowUser = async (req, res) => {
 
 const getUserProfile = async (req, res) => {
   try {
-    const { username } = req.params;
-    const user = await User.findOne({ username })
-      .select('-password')
-      .select('-updatedAt');
+    const { query } = req.params;
+    let user;
+
+    if (mongoose.Types.ObjectId.isValid(query)) {
+      user = await User.findOne({ _id: query })
+        .select('-password')
+        .select('-updatedAt');
+    } else {
+      user = await User.findOne({
+        username: { $regex: `^${query}$`, $options: 'i' },
+      })
+        .select('-password')
+        .select('-updatedAt');
+    }
+
     if (!user) {
       return res.json({
         message: 'User can not be found',

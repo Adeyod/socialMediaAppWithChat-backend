@@ -1,4 +1,13 @@
 import mongoose, { Schema } from 'mongoose';
+
+const profileImg = {
+  url: String,
+  publicId: String,
+  assetId: String,
+  signature: String,
+  default: { type: String, default: '' },
+};
+
 const postSchema = new mongoose.Schema(
   {
     postedBy: {
@@ -10,9 +19,10 @@ const postSchema = new mongoose.Schema(
       type: String,
       maxLength: 500,
     },
-    img: {
-      type: String,
-    },
+    img: profileImg,
+    // img: {
+    //   type: String,
+    // },
     likes: {
       type: [Schema.Types.ObjectId],
       ref: 'User',

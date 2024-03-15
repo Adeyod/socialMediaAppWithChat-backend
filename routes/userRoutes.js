@@ -19,6 +19,10 @@ import multerUpload from '../middleware/multer.js';
 const router = express.Router();
 
 router.post('/login', loginUser);
+router.post('/register', registerUser);
+router.post('/logout', logoutUser);
+router.post('/resend-email-verification', resendEmailVerification);
+router.post('/forgot-password', forgotPassword);
 router.post('/follow/:id', verifyToken, followUnFollowUser);
 router.put(
   '/update/:id',
@@ -26,13 +30,9 @@ router.put(
   multerUpload.single('file'),
   updateUserProfile
 );
-router.post('/register', registerUser);
-router.post('/logout', logoutUser);
-router.post('/resend-email-verification', resendEmailVerification);
-router.post('/forgot-password', forgotPassword);
-router.post('/allow-reset-password/:userId/:token', allowResetPassword);
+router.get('/allow-reset-password/:userId/:token', allowResetPassword);
 router.post('/reset-password/:userId/:token', resetPassword);
-router.post('/user-verification/:userId/:token', emailVerification);
-router.get('/profile/:username', getUserProfile);
+router.get('/user-verification/:userId/:token', emailVerification);
+router.get('/profile/:query', getUserProfile);
 
 export default router;

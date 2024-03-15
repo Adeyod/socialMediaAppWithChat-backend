@@ -1,11 +1,13 @@
 import Post from '../models/postModel.js';
 import User from '../models/userModel.js';
-import { handleFileUpload } from '../utils/cloudinary.js';
+import { cloudinaryDestroy, handleFileUpload } from '../utils/cloudinary.js';
 
 const createPost = async (req, res) => {
   try {
     const { text, postedBy } = req.body;
     const img = req.files;
+    console.log(req.body);
+    console.log(req.files);
 
     if (!postedBy || !text) {
       return res.json({
@@ -42,13 +44,20 @@ const createPost = async (req, res) => {
       });
     }
 
-    if (img) {
+    if (img && img !== undefined && img.length !== 0) {
       const uploadImg = await handleFileUpload(req, res);
+
+      const result = {
+        url: uploadImg.url,
+        publicId: uploadImg.publicId,
+        assetId: uploadImg.assetId,
+        signature: uploadImg.signature,
+      };
 
       const newPost = await Post({
         postedBy,
         text,
-        img: uploadImg.url,
+        img: result,
       }).save();
 
       if (!newPost) {
@@ -70,7 +79,6 @@ const createPost = async (req, res) => {
     const newPost = await Post({
       postedBy,
       text,
-      img,
     }).save();
 
     if (!newPost) {
@@ -149,6 +157,10 @@ const deletePost = async (req, res) => {
       });
     }
 
+    if (post.img !== '') {
+      await cloudinaryDestroy(post.img.publicId);
+    }
+
     const deletedPost = await Post.findByIdAndDelete({ _id: id });
     if (!deletedPost) {
       return res.json({
@@ -224,7 +236,7 @@ const replyToPost = async (req, res) => {
     const postId = req.params.id;
     const userId = req.user._id;
 
-    const userProfilePic = req.user.profilePic;
+    const userProfilePic = req.user.profilePic.url;
     const username = req.user.username;
 
     if (!text) {
@@ -253,6 +265,7 @@ const replyToPost = async (req, res) => {
       message: 'Reply added successfully',
       success: true,
       status: 200,
+      reply,
       post,
     });
   } catch (error) {
@@ -300,6 +313,51 @@ const getFeedPosts = async (req, res) => {
   }
 };
 
+const getUserPosts = async (req, res) => {
+  try {
+    const { username } = req.params;
+    console.log(req.params);
+
+    const user = await User.findOne({
+      username: { $regex: `^${username}$`, $options: 'i' },
+    });
+
+    if (!user) {
+      return res.json({
+        message: 'User can not be found',
+        status: 404,
+        success: false,
+      });
+    }
+
+    const posts = await Post.find({ postedBy: user._id }).sort({
+      createdAt: -1,
+    });
+
+    if (!posts) {
+      return res.json({
+        message: 'User do not have any post at the moment',
+        status: 404,
+        success: false,
+      });
+    }
+
+    return res.json({
+      message: 'Posts fetched successfully',
+      success: true,
+      status: 200,
+      posts,
+    });
+  } catch (error) {
+    return res.json({
+      message: 'Something happened',
+      success: false,
+      status: 500,
+      error: error.message,
+    });
+  }
+};
+
 export {
   createPost,
   getFeedPosts,
@@ -307,6 +365,7 @@ export {
   getPost,
   deletePost,
   likeUnlikePost,
+  getUserPosts,
 };
 
-// 03:26:00
+// 05:01:48
