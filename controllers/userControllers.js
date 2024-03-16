@@ -141,8 +141,8 @@ const registerUser = async (req, res) => {
 
     console.log(newToken);
 
-    // const link = `${process.env.FRONTEND_URL}/user-verification/?userId=${newToken.userId}&token=${newToken.token}`;
-    const link = `${process.env.FRONTEND_URL}/api/user/user-verification/${newToken.userId}/${newToken.token}`;
+    const link = `${process.env.FRONTEND_URL}/user-verification/?userId=${newToken.userId}&token=${newToken.token}`;
+    // const link = `${process.env.FRONTEND_URL}/api/user/user-verification/${newToken.userId}/${newToken.token}`;
 
     await verifyEmail(link, user.email);
 
@@ -228,8 +228,8 @@ const loginUser = async (req, res) => {
       });
 
       if (validToken) {
-        // const link = `${process.env.FRONTEND_URL}/user-verification/?userId=${validToken.userId}&token=${validToken.token}`;
-        const link = `${process.env.FRONTEND_URL}/api/user/user-verification/${validToken.userId}/${validToken.token}`;
+        const link = `${process.env.FRONTEND_URL}/user-verification/?userId=${validToken.userId}&token=${validToken.token}`;
+        // const link = `${process.env.FRONTEND_URL}/api/user/user-verification/${validToken.userId}/${validToken.token}`;
 
         await verifyEmail(link, userExist.email);
         return res.json({
@@ -247,8 +247,8 @@ const loginUser = async (req, res) => {
         userId: userExist._id,
       }).save();
 
-      // const link = `${process.env.FRONTEND_URL}/user-verification/?userId=${newToken.userId}&token=${newToken.token}`;
-      const link = `${process.env.FRONTEND_URL}/user-verification/${newToken.userId}/${newToken.token}`;
+      const link = `${process.env.FRONTEND_URL}/user-verification/?userId=${newToken.userId}&token=${newToken.token}`;
+      // const link = `${process.env.FRONTEND_URL}/user-verification/${newToken.userId}/${newToken.token}`;
 
       await verifyEmail(link, userExist.email);
 
@@ -340,7 +340,7 @@ const resendEmailVerification = async (req, res) => {
     });
 
     if (findToken) {
-      const link = `${process.env.FRONTEND_URL}/api/user/user-verification/${findToken.userId}/${findToken.token}`;
+      const link = `${process.env.FRONTEND_URL}/user-verification/?userId=${findToken.userId}&token=${findToken.token}`;
       // const link = `${process.env.FRONTEND_URL}/api/user/user-verification/?userId=${findToken.userId}&token=${findToken.token}`;
       // const link = `${process.env.FRONTEND_URL}/api/user/allow-reset-password/?userId=${findToken.userId}&token=${findToken.token}`;
 
