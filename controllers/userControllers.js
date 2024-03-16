@@ -360,8 +360,8 @@ const resendEmailVerification = async (req, res) => {
         userId: user._id,
       }).save();
 
-      const link = `${process.env.FRONTEND_URL}/api/user/user-verification/${newToken.userId}/${newToken.token}`;
-      // const link = `${process.env.FRONTEND_URL}/api/user/user-verification/?userId=${newToken.userId}&token=${newToken.token}`;
+      // const link = `${process.env.FRONTEND_URL}/api/user/user-verification/${newToken.userId}/${newToken.token}`;
+      const link = `${process.env.FRONTEND_URL}/user-verification/?userId=${newToken.userId}&token=${newToken.token}`;
 
       await verifyEmail(link, email);
 
@@ -413,7 +413,7 @@ const forgotPassword = async (req, res) => {
     });
 
     if (findToken) {
-      const link = `${process.env.FRONTEND_URL}/api/user/allow-reset-password/${findToken.userId}/${findToken.token}`;
+      const link = `${process.env.FRONTEND_URL}/allow-reset-password/?userId=${findToken.userId}&token=${findToken.token}`;
       // const link = `${process.env.FRONTEND_URL}/api/user/allow-reset-password/?userId=${findToken.userId}&token=${findToken.token}`;
 
       const passChange = await changePassword(link, user.email, user.username);
@@ -433,8 +433,8 @@ const forgotPassword = async (req, res) => {
         userId: user._id,
       }).save();
 
-      const link = `${process.env.FRONTEND_URL}/api/user/allow-reset-password/${newToken.userId}/${newToken.token}`;
-      // const link = `${process.env.FRONTEND_URL}/api/user/allow-reset-password/?userId=${newToken.userId}&token=${newToken.token}`;
+      // const link = `${process.env.FRONTEND_URL}/api/user/allow-reset-password/${newToken.userId}/${newToken.token}`;
+      const link = `${process.env.FRONTEND_URL}/allow-reset-password/?userId=${newToken.userId}&token=${newToken.token}`;
 
       const passChange = await changePassword(link, email, user.username);
 
