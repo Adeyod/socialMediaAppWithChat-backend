@@ -9,7 +9,6 @@ import {
   cloudinaryUploads,
   handleFileUpload,
 } from '../utils/cloudinary.js';
-import { error, profile } from 'console';
 import mongoose from 'mongoose';
 import Post from '../models/postModel.js';
 
