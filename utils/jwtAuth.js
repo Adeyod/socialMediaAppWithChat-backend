@@ -12,7 +12,7 @@ const generateToken = async (userId, email, res) => {
     });
     res.cookie('token', token, {
       httpOnly: true,
-      sameSite: 'strict',
+      sameSite: 'none',
       maxAge: 10 * 24 * 60 * 60 * 1000,
       // secure: false, // Include this if your app is served over HTTP
       secure: true, // Include this if your app is served over HTTPS
