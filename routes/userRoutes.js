@@ -23,6 +23,10 @@ router.post('/register', registerUser);
 router.post('/logout', logoutUser);
 router.post('/resend-email-verification', resendEmailVerification);
 router.post('/forgot-password', forgotPassword);
+router.get('/user-verification/:userId/:token', emailVerification);
+router.get('/allow-reset-password/:userId/:token', allowResetPassword);
+router.post('/reset-password/:userId/:token', resetPassword);
+router.get('/profile/:query', getUserProfile);
 router.post('/follow/:id', verifyToken, followUnFollowUser);
 router.put(
   '/update/:id',
@@ -30,9 +34,5 @@ router.put(
   multerUpload.single('file'),
   updateUserProfile
 );
-router.get('/allow-reset-password/:userId/:token', allowResetPassword);
-router.post('/reset-password/:userId/:token', resetPassword);
-router.get('/user-verification/:userId/:token', emailVerification);
-router.get('/profile/:query', getUserProfile);
 
 export default router;

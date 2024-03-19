@@ -18,8 +18,6 @@ const registerUser = async (req, res) => {
   try {
     const { username, name, email, password, confirmPassword } = req.body;
 
-    // const profilePicture = req.file;
-
     const isEmpty = Object.values(req.body).some((v) => !v);
     if (isEmpty) {
       return res.json({
@@ -28,14 +26,6 @@ const registerUser = async (req, res) => {
         success: false,
       });
     }
-
-    // if (!profilePicture) {
-    //   return res.json({
-    //     message: 'Profile picture is required',
-    //     status: 400,
-    //     success: false,
-    //   });
-    // }
 
     const trimmedName = name.trim();
     const trimmedEmail = email.trim();
@@ -87,17 +77,6 @@ const registerUser = async (req, res) => {
         success: false,
       });
     }
-
-    // upload profile picture
-    // const result = await handleFileUpload(req, res);
-
-    // console.log(result);
-    // const profileImg = {
-    //   url: result.url,
-    //   publicId: result.publicId,
-    //   assetId: result.assetId,
-    //   signature: result.signature,
-    // };
 
     const userExist = await User.findOne({
       $or: [
@@ -342,7 +321,6 @@ const resendEmailVerification = async (req, res) => {
     if (findToken) {
       const link = `${process.env.FRONTEND_URL}/user-verification/?userId=${findToken.userId}&token=${findToken.token}`;
       // const link = `${process.env.FRONTEND_URL}/api/user/user-verification/?userId=${findToken.userId}&token=${findToken.token}`;
-      // const link = `${process.env.FRONTEND_URL}/api/user/allow-reset-password/?userId=${findToken.userId}&token=${findToken.token}`;
 
       await verifyEmail(link, email);
 
@@ -663,17 +641,6 @@ const updateUserProfile = async (req, res) => {
       }
     }
 
-    // if (email !== '') {
-    //   // check the email field to prevent input of unwanted characters
-    //   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    //     return res.json({
-    //       message: 'Invalid input for email...',
-    //       status: 400,
-    //       success: false,
-    //     });
-    //   }
-    // }
-
     if (req.params.id !== req.user._id.toString()) {
       return res.json({
         message: 'You can only update your profile',
@@ -681,18 +648,6 @@ const updateUserProfile = async (req, res) => {
         success: false,
       });
     }
-
-    // const emailExist = await User.findOne({
-    //   $or: [{ email }, { username: { $regex: username, $options: 'i' } }],
-    // });
-
-    // if (!emailExist) {
-    //   return res.json({
-    //     message: 'User can not be found',
-    //     status: 404,
-    //     success: false,
-    //   });
-    // }
 
     let user = await User.findById({ _id: req.user._id });
     if (!user) {
